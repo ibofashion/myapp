@@ -64,3 +64,37 @@ Work is staged as MVP → V1 → V2 (PRD §4). MVP is single-user, no auth requi
 ## Offline/flaky-network handling
 
 Shop connectivity is unreliable (ARCHITECTURE §6): disable submit buttons during requests (`hx-disabled-elt`) with a loading indicator (`hx-indicator`), and use a client-generated idempotency key on sale/payment creation so a double-tap on a slow connection doesn't create duplicates.
+
+## Aperçu de l'objectif du projet
+
+Mini CRM permettant à un gestionnaire de boutique de remplacer le suivi des ventes à crédit tenu dans l'app Notes de son téléphone, avec calculs automatiques (totaux, soldes, statuts) et accès multi-utilisateur/multi-appareil. Voir [`PRD.md`](./PRD.md) §1 pour le contexte complet.
+
+## Aperçu de l'architecture globale
+
+Application Django 5 monolithique (pas de séparation front/back en API séparée), rendue côté serveur avec HTMX/Alpine.js pour l'interactivité, PostgreSQL comme unique source de vérité (y compris pour les calculs dérivés via `v_sale_balances`), déployée sur Railway Hobby. Voir [`ARCHITECTURE.md`](./ARCHITECTURE.md) pour le détail des choix et leurs justifications.
+
+## Style visuel
+
+- Interface claire et minimaliste.
+- Pas de mode sombre pour le MVP.
+
+## Contraintes et politiques
+
+- NE JAMAIS exposer les clés API au client.
+
+## Dépendances
+
+- Préférer les composants existants plutôt que d'ajouter de nouvelles bibliothèques UI.
+
+## Tests d'interface graphique
+
+À la fin de chaque développement qui implique l'interface graphique : tester avec `playwright-skill` — l'interface doit être responsive, fonctionnelle et répondre au besoin développé.
+
+## Documentation
+
+- [`PRD.md`](./PRD.md) — cahier des charges (besoin métier, modèle de données, paliers de fonctionnalités).
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md) — choix techniques et invariants d'implémentation.
+
+## Langue des spécifications
+
+Toutes les spécifications doivent être rédigées en français, y compris les specs OpenSpec (sections Purpose et Scenarios). Seuls les titres de Requirements doivent rester en anglais avec les mots-clés SHALL/MUST pour la validation OpenSpec.
