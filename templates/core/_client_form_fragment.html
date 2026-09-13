@@ -1,0 +1,45 @@
+{% if success %}
+<div class="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-green-800">
+    Client « {{ success.name }} » ({{ success.phone }}) créé avec succès.
+</div>
+{% endif %}
+
+<form id="client-form"
+      hx-post="{% url 'client_create' %}"
+      hx-target="#client-form-container"
+      hx-swap="innerHTML"
+      hx-disabled-elt="#client-submit-btn"
+      hx-indicator="#client-form-indicator"
+      class="space-y-4 bg-white p-6 rounded-lg border border-gray-200">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm">
+        {{ form.non_field_errors }}
+    </div>
+    {% endif %}
+
+    <div>
+        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Nom</label>
+        {{ form.name }}
+        {% if form.name.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.name.errors|join:", " }}</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">Téléphone</label>
+        {{ form.phone }}
+        {% if form.phone.errors %}
+        <p class="mt-1 text-sm text-red-600">{{ form.phone.errors|join:", " }}</p>
+        {% endif %}
+    </div>
+
+    <div class="flex items-center gap-3">
+        <button id="client-submit-btn" type="submit"
+                class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-white font-medium disabled:opacity-50">
+            Créer le client
+        </button>
+        <span id="client-form-indicator" class="htmx-indicator text-sm text-gray-500">Enregistrement…</span>
+    </div>
+</form>

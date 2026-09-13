@@ -35,6 +35,7 @@ htmlcov/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+.playwright-mcp/
 
 # Editors / OS
 .vscode/

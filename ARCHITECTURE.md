@@ -19,7 +19,7 @@ Document de référence des choix techniques retenus pour l'implémentation. Dé
 | Tests | `pytest-django` (logique métier) + Playwright (parcours utilisateur) |
 | Gestion des dépendances | `pip` + `venv` (`requirements.txt`) |
 | Hébergement | Railway Hobby (5 $/mois) — app + PostgreSQL sur la même plateforme |
-| Devise | **XOF (franc CFA)** — pas de sous-unité |
+| Devise | **XAF (franc CFA)** — pas de sous-unité |
 
 ---
 
@@ -71,7 +71,7 @@ class PaymentAllocation(models.Model):
 
 **Notes de conception**
 
-- Montants en `DecimalField(max_digits=12, decimal_places=0)` : cohérent avec le XOF, exact par nature (contrairement à un `float`).
+- Montants en `DecimalField(max_digits=12, decimal_places=0)` : cohérent avec le XAF, exact par nature (contrairement à un `float`).
 - `clients.phone` : normaliser en E.164 (ou format local strict) **avant** insertion — sinon la clé unique du §2.3 du PRD ne protège rien contre deux écritures différentes du même numéro.
 - Pas de table `articles` (conforme au §2.2 — prix négociables, pas de catalogue). L'autocomplétion V2 du « dernier prix pratiqué » se fait par requête `DISTINCT ON (label) ... ORDER BY label, sold_at DESC` sur `SaleLine`, sans table dédiée.
 - Pas de table d'historique/audit (conforme au §2.2 — « pas de traçabilité »). Ne pas en ajouter une non demandée.
@@ -212,7 +212,7 @@ Test de fumée à couvrir dès les premiers écrans (`pytest-django`, sur `v_sal
 
 | Question | Décision |
 |---|---|
-| Devise | XOF (franc CFA), montants entiers sans décimale |
+| Devise | XAF (franc CFA), montants entiers sans décimale |
 | Suppression d'une vente annulée | Suppression définitive (pas d'archivage), bloquée si des paiements y sont déjà imputés |
 | Gestion des dépendances Python | `pip` + `venv` |
 

@@ -28,7 +28,7 @@ A mini CRM for a shop owner to replace tracking credit sales (*ventes à crédit
 - `pytest-django` for business logic tests, Playwright for user-flow tests
 - `pip` + `venv` (`requirements.txt`) — not poetry/uv
 - Target host: Railway Hobby (app + Postgres together)
-- Currency: **XOF (franc CFA)** — integer amounts only, no decimal subunit. Always use `DecimalField(max_digits=12, decimal_places=0)`, never `float`, for money.
+- Currency: **XAF (franc CFA)** — integer amounts only, no decimal subunit. Always use `DecimalField(max_digits=12, decimal_places=0)`, never `float`, for money.
 
 ## Core domain model
 
