@@ -73,6 +73,19 @@ class SaleLineForm(forms.ModelForm):
         return unit_price
 
 
+class PaymentForm(forms.Form):
+    amount = forms.DecimalField(
+        max_digits=12,
+        decimal_places=0,
+        min_value=1,
+        error_messages={
+            "required": "Le montant du paiement est requis.",
+            "min_value": "Le montant du paiement doit être positif.",
+        },
+        widget=forms.NumberInput(attrs={"class": INPUT_CLASS, "min": "1", "placeholder": "Montant reçu"}),
+    )
+
+
 SaleLineFormSet = inlineformset_factory(
     Sale,
     SaleLine,

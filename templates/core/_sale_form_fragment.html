@@ -1,6 +1,7 @@
 {% if success %}
 <div class="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-green-800">
     Vente créée pour {{ success.client }} — total {{ success.total }} FCFA.
+    <a href="{% url 'client_detail' success.client_id %}" class="underline font-medium">Voir la fiche client</a>
 </div>
 {% endif %}
 

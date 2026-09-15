@@ -55,3 +55,59 @@ class SaleLine(models.Model):
 
     def __str__(self):
         return f"{self.label} x{self.quantity}"
+
+
+class Payment(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.PROTECT, related_name="payments")
+    amount = models.DecimalField(max_digits=12, decimal_places=0)
+    paid_at = models.DateTimeField(auto_now_add=True)
+    recorded_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name="payments_recorded")
+    idempotency_key = models.UUIDField(unique=True, default=uuid.uuid4)
+
+    def __str__(self):
+        return f"Paiement #{self.pk} — {self.client} — {self.amount} FCFA"
+
+
+class PaymentAllocation(models.Model):
+    payment = models.ForeignKey(Payment, on_delete=models.PROTECT, related_name="allocations")
+    sale = models.ForeignKey(Sale, on_delete=models.PROTECT, related_name="allocations")
+    amount = models.DecimalField(max_digits=12, decimal_places=0)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(amount__gt=0), name="allocation_amount_positive"),
+        ]
+
+    def __str__(self):
+        return f"{self.amount} FCFA sur vente #{self.sale_id}"
+
+
+class SaleBalance(models.Model):
+    """Modèle non managé exposant la vue SQL `v_sale_balances` (voir ARCHITECTURE.md §3).
+
+    Source unique du solde et du statut d'une vente : jamais de champ équivalent
+    stocké en dur sur `Sale`, pour ne jamais pouvoir diverger après un paiement.
+    """
+
+    STATUS_LABELS = {
+        "non_paye": "Non payé",
+        "partiel": "Partiel",
+        "solde": "Soldé",
+    }
+
+    sale = models.OneToOneField(
+        Sale, primary_key=True, db_column="sale_id", on_delete=models.DO_NOTHING, related_name="balance"
+    )
+    client_id = models.IntegerField()
+    total = models.DecimalField(max_digits=12, decimal_places=0)
+    paid = models.DecimalField(max_digits=12, decimal_places=0)
+    balance = models.DecimalField(max_digits=12, decimal_places=0)
+    status = models.CharField(max_length=10)
+
+    class Meta:
+        managed = False
+        db_table = "v_sale_balances"
+
+    @property
+    def status_label(self):
+        return self.STATUS_LABELS.get(self.status, self.status)

@@ -17,6 +17,11 @@
     <header class="bg-white border-b border-gray-200">
         <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <a href="/" class="font-semibold text-lg">Mini CRM</a>
+            <nav class="flex items-center gap-4 text-sm">
+                <a href="{% url 'client_list' %}" class="text-gray-600 hover:text-gray-900">Clients</a>
+                <a href="{% url 'client_create' %}" class="text-gray-600 hover:text-gray-900">Nouveau client</a>
+                <a href="{% url 'sale_create' %}" class="text-gray-600 hover:text-gray-900">Nouvelle vente</a>
+            </nav>
         </div>
     </header>
     <main class="max-w-4xl mx-auto px-4 py-6">

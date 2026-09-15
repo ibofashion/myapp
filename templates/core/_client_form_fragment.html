@@ -1,6 +1,7 @@
 {% if success %}
 <div class="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-green-800">
     Client « {{ success.name }} » ({{ success.phone }}) créé avec succès.
+    <a href="{% url 'client_detail' success.pk %}" class="underline font-medium">Voir sa fiche</a>
 </div>
 {% endif %}
 

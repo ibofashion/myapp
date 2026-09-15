@@ -22,6 +22,8 @@ from core import views as core_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', core_views.home, name='home'),
+    path('clients/', core_views.client_list, name='client_list'),
     path('clients/nouveau/', core_views.client_create, name='client_create'),
+    path('clients/<int:pk>/', core_views.client_detail, name='client_detail'),
     path('ventes/nouvelle/', core_views.sale_create, name='sale_create'),
 ]

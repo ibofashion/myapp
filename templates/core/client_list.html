@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Clients — Mini CRM{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Clients</h1>
+    <a href="{% url 'client_create' %}" class="text-sm text-blue-600 font-medium">+ Nouveau client</a>
+</div>
+{% if clients %}
+<div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+    {% for client in clients %}
+    <a href="{% url 'client_detail' client.pk %}" class="flex items-center justify-between px-4 py-3 hover:bg-gray-50">
+        <span class="font-medium">{{ client.name }}</span>
+        <span class="text-gray-500 text-sm">{{ client.phone }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-500">Aucun client pour l'instant.</p>
+{% endif %}
+{% endblock %}
