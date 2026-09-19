@@ -1,6 +1,7 @@
 import uuid
 from decimal import Decimal, InvalidOperation
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render
@@ -8,13 +9,14 @@ from django.shortcuts import get_object_or_404, render
 from core.forms import ClientForm, PaymentForm, SaleForm, SaleLineFormSet
 from core.models import Client, Payment, Sale, SaleBalance
 from core.payments import record_payment
-from core.seller import get_bootstrap_seller
 
 
+@login_required
 def home(request):
     return render(request, "core/home.html")
 
 
+@login_required
 def client_create(request):
     success = None
     if request.method == "POST":
@@ -33,6 +35,7 @@ def client_create(request):
     return render(request, "core/client_form.html", context)
 
 
+@login_required
 def sale_create(request):
     success = None
 
@@ -54,7 +57,7 @@ def sale_create(request):
             if form.is_valid() and formset.is_valid():
                 with transaction.atomic():
                     sale = form.save(commit=False)
-                    sale.seller = get_bootstrap_seller()
+                    sale.seller = request.user
                     sale.idempotency_key = idempotency_key or uuid.uuid4()
                     sale.save()
                     formset.instance = sale
@@ -78,6 +81,7 @@ def sale_create(request):
     return render(request, "core/sale_form.html", context)
 
 
+@login_required
 def sale_detail(request, pk):
     sale = get_object_or_404(
         Sale.objects.select_related("client", "seller").prefetch_related("lines"), pk=pk
@@ -87,11 +91,13 @@ def sale_detail(request, pk):
     return render(request, "core/sale_detail.html", context)
 
 
+@login_required
 def client_list(request):
     clients = Client.objects.order_by("name")
     return render(request, "core/client_list.html", {"clients": clients})
 
 
+@login_required
 def client_detail(request, pk):
     client = get_object_or_404(Client, pk=pk)
     success_payment = None
@@ -129,7 +135,7 @@ def client_detail(request, pk):
                         client=client,
                         amount=payment_form.cleaned_data["amount"],
                         allocations=allocations,
-                        recorded_by=get_bootstrap_seller(),
+                        recorded_by=request.user,
                         idempotency_key=idempotency_key or uuid.uuid4(),
                     )
                     success_payment = payment

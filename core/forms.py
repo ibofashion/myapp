@@ -1,10 +1,20 @@
 from django import forms
+from django.contrib.auth.forms import AuthenticationForm
 from django.forms import inlineformset_factory
 
 from core.models import Client, Sale, SaleLine
 from core.phone import normalize_phone
 
 INPUT_CLASS = "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={"class": INPUT_CLASS, "autofocus": True})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"class": INPUT_CLASS})
+    )
 
 
 class ClientForm(forms.ModelForm):
