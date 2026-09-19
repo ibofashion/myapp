@@ -26,8 +26,11 @@
             </thead>
             <tbody>
                 {% for balance in sale_balances %}
-                <tr class="border-t border-gray-100">
-                    <td class="px-4 py-2">#{{ balance.sale_id }}</td>
+                <tr class="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
+                    onclick="window.location='{% url 'sale_detail' balance.sale_id %}'">
+                    <td class="px-4 py-2">
+                        <a href="{% url 'sale_detail' balance.sale_id %}" class="text-blue-600 font-medium">#{{ balance.sale_id }}</a>
+                    </td>
                     <td class="px-4 py-2">{{ balance.sale.sold_at|date:"d/m/Y" }}</td>
                     <td class="px-4 py-2 text-right">{{ balance.total }} FCFA</td>
                     <td class="px-4 py-2 text-right">{{ balance.paid }} FCFA</td>

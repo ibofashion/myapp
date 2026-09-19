@@ -78,6 +78,15 @@ def sale_create(request):
     return render(request, "core/sale_form.html", context)
 
 
+def sale_detail(request, pk):
+    sale = get_object_or_404(
+        Sale.objects.select_related("client", "seller").prefetch_related("lines"), pk=pk
+    )
+    balance = SaleBalance.objects.filter(sale_id=sale.pk).first()
+    context = {"sale": sale, "balance": balance}
+    return render(request, "core/sale_detail.html", context)
+
+
 def client_list(request):
     clients = Client.objects.order_by("name")
     return render(request, "core/client_list.html", {"clients": clients})

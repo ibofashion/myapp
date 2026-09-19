@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Vente #{{ sale.pk }} — Mini CRM{% endblock %}
+{% block content %}
+<a href="{% url 'client_detail' sale.client.pk %}" class="text-sm text-blue-600 font-medium">&larr; {{ sale.client.name }}</a>
+<div class="flex items-center justify-between mt-2 mb-6">
+    <h1 class="text-2xl font-bold">Vente #{{ sale.pk }}</h1>
+    {% if balance %}
+    <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium
+        {% if balance.status == 'solde' %}bg-green-100 text-green-800
+        {% elif balance.status == 'partiel' %}bg-yellow-100 text-yellow-800
+        {% else %}bg-gray-100 text-gray-700{% endif %}">
+        {{ balance.status_label }}
+    </span>
+    {% endif %}
+</div>
+<p class="text-gray-500 mb-6">{{ sale.sold_at|date:"d/m/Y H:i" }} — vendu par {{ sale.seller.get_username }}</p>
+
+<div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
+    <h2 class="text-lg font-semibold px-4 py-3 border-b border-gray-200">Articles</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                <tr>
+                    <th class="px-4 py-2 text-left">Article</th>
+                    <th class="px-4 py-2 text-right">Prix unitaire</th>
+                    <th class="px-4 py-2 text-right">Quantité</th>
+                    <th class="px-4 py-2 text-right">Total ligne</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in sale.lines.all %}
+                <tr class="border-t border-gray-100">
+                    <td class="px-4 py-2">{{ line.label }}</td>
+                    <td class="px-4 py-2 text-right">{{ line.unit_price }} FCFA</td>
+                    <td class="px-4 py-2 text-right">{{ line.quantity }}</td>
+                    <td class="px-4 py-2 text-right">{{ line.total }} FCFA</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if balance %}
+<div class="bg-white rounded-lg border border-gray-200 p-4 space-y-1 text-sm">
+    <div class="flex justify-between"><span class="text-gray-500">Total</span><span class="font-medium">{{ balance.total }} FCFA</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Payé</span><span class="font-medium">{{ balance.paid }} FCFA</span></div>
+    <div class="flex justify-between"><span class="text-gray-500">Solde restant</span><span class="font-medium">{{ balance.balance }} FCFA</span></div>
+</div>
+{% endif %}
+{% endblock %}

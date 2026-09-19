@@ -26,4 +26,5 @@ urlpatterns = [
     path('clients/nouveau/', core_views.client_create, name='client_create'),
     path('clients/<int:pk>/', core_views.client_detail, name='client_detail'),
     path('ventes/nouvelle/', core_views.sale_create, name='sale_create'),
+    path('ventes/<int:pk>/', core_views.sale_detail, name='sale_detail'),
 ]
