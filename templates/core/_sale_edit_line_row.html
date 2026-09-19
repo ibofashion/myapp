@@ -1,0 +1,26 @@
+<div class="line-row grid grid-cols-2 sm:grid-cols-12 gap-2 items-start border-b border-gray-100 py-2" x-data="{ deleted: false }" x-show="!deleted">
+    {{ line_form.id }}
+    <div class="col-span-2 sm:col-span-5">
+        <span class="sm:hidden block text-xs text-gray-500 mb-0.5">Article</span>
+        {{ line_form.label }}
+        {% if line_form.label.errors %}<p class="text-xs text-red-600">{{ line_form.label.errors|join:", " }}</p>{% endif %}
+    </div>
+    <div class="col-span-1 sm:col-span-2">
+        <span class="sm:hidden block text-xs text-gray-500 mb-0.5">Prix unitaire</span>
+        {{ line_form.unit_price }}
+        {% if line_form.unit_price.errors %}<p class="text-xs text-red-600">{{ line_form.unit_price.errors|join:", " }}</p>{% endif %}
+    </div>
+    <div class="col-span-1 sm:col-span-2">
+        <span class="sm:hidden block text-xs text-gray-500 mb-0.5">Quantité</span>
+        {{ line_form.quantity }}
+        {% if line_form.quantity.errors %}<p class="text-xs text-red-600">{{ line_form.quantity.errors|join:", " }}</p>{% endif %}
+    </div>
+    <div class="col-span-1 sm:col-span-2">
+        <span class="sm:hidden block text-xs text-gray-500 mb-0.5">Total ligne</span>
+        <span class="line-total block pt-2 sm:pt-2 text-gray-700">0</span>
+    </div>
+    <div class="col-span-1 sm:col-span-1 flex justify-end pt-1">
+        <span class="hidden">{{ line_form.DELETE }}</span>
+        <button type="button" @click="deleted = true; $el.closest('.line-row').querySelector('input[name$=\'-DELETE\']').checked = true; recalc();" class="text-red-600 text-sm">✕</button>
+    </div>
+</div>

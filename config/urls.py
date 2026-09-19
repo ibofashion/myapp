@@ -35,4 +35,6 @@ urlpatterns = [
     path('clients/<int:pk>/', core_views.client_detail, name='client_detail'),
     path('ventes/nouvelle/', core_views.sale_create, name='sale_create'),
     path('ventes/<int:pk>/', core_views.sale_detail, name='sale_detail'),
+    path('ventes/<int:pk>/modifier/', core_views.sale_edit, name='sale_edit'),
+    path('ventes/<int:pk>/annuler/', core_views.sale_delete, name='sale_delete'),
 ]

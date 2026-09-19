@@ -2,10 +2,12 @@ import uuid
 from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
+from core.authz import can_edit_sale
 from core.forms import ClientForm, PaymentForm, SaleForm, SaleLineFormSet
 from core.models import Client, Payment, Sale, SaleBalance
 from core.payments import record_payment
@@ -87,8 +89,57 @@ def sale_detail(request, pk):
         Sale.objects.select_related("client", "seller").prefetch_related("lines"), pk=pk
     )
     balance = SaleBalance.objects.filter(sale_id=sale.pk).first()
-    context = {"sale": sale, "balance": balance}
+    context = {
+        "sale": sale,
+        "balance": balance,
+        "can_edit": can_edit_sale(request.user, sale),
+    }
     return render(request, "core/sale_detail.html", context)
+
+
+@login_required
+def sale_edit(request, pk):
+    sale = get_object_or_404(Sale.objects.select_related("client", "seller"), pk=pk)
+    if not can_edit_sale(request.user, sale):
+        raise PermissionDenied
+
+    success = None
+    if request.method == "POST":
+        formset = SaleLineFormSet(request.POST, instance=sale, prefix="lines")
+        if formset.is_valid():
+            formset.save()
+            success = sale
+    else:
+        formset = SaleLineFormSet(instance=sale, prefix="lines")
+
+    context = {"sale": sale, "formset": formset, "success": success}
+
+    if request.method == "POST":
+        return render(request, "core/_sale_edit_form_fragment.html", context)
+    return render(request, "core/sale_edit.html", context)
+
+
+@login_required
+@require_POST
+def sale_delete(request, pk):
+    with transaction.atomic():
+        sale = get_object_or_404(
+            Sale.objects.select_for_update().select_related("client"), pk=pk
+        )
+        if not can_edit_sale(request.user, sale):
+            raise PermissionDenied
+        if sale.allocations.exists():
+            error = (
+                "Cette vente a des paiements imputés dessus : retirez d'abord "
+                "ces imputations avant de l'annuler."
+            )
+            balance = SaleBalance.objects.filter(sale_id=sale.pk).first()
+            context = {"sale": sale, "balance": balance, "error": error, "can_edit": True}
+            return render(request, "core/sale_detail.html", context, status=400)
+        client_id = sale.client_id
+        sale.delete()
+
+    return redirect("client_detail", pk=client_id)
 
 
 @login_required

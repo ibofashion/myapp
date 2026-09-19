@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Modifier la vente #{{ sale.pk }} — Mini CRM{% endblock %}
+{% block content %}
+<a href="{% url 'sale_detail' sale.pk %}" class="text-sm text-blue-600 font-medium">&larr; Vente #{{ sale.pk }}</a>
+<h1 class="text-2xl font-bold mt-2 mb-6">Modifier la vente #{{ sale.pk }} — {{ sale.client.name }}</h1>
+<div id="sale-edit-form-container">
+    {% include "core/_sale_edit_form_fragment.html" %}
+</div>
+{% endblock %}

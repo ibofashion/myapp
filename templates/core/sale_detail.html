@@ -13,7 +13,22 @@
     </span>
     {% endif %}
 </div>
-<p class="text-gray-500 mb-6">{{ sale.sold_at|date:"d/m/Y H:i" }} — vendu par {{ sale.seller.get_username }}</p>
+<p class="text-gray-500 mb-2">{{ sale.sold_at|date:"d/m/Y H:i" }} — vendu par {{ sale.seller.get_username }}</p>
+
+{% if can_edit %}
+<div class="flex items-center gap-4 mb-6 text-sm">
+    <a href="{% url 'sale_edit' sale.pk %}" class="text-blue-600 font-medium">Modifier</a>
+    <form method="post" action="{% url 'sale_delete' sale.pk %}"
+          onsubmit="return confirm('Annuler définitivement cette vente ?');">
+        {% csrf_token %}
+        <button type="submit" class="text-red-600 font-medium">Annuler la vente</button>
+    </form>
+</div>
+{% endif %}
+
+{% if error %}
+<div class="mb-6 rounded-md bg-red-50 border border-red-200 px-4 py-3 text-red-800">{{ error }}</div>
+{% endif %}
 
 <div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
     <h2 class="text-lg font-semibold px-4 py-3 border-b border-gray-200">Articles</h2>
