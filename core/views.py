@@ -7,15 +7,49 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from core.authz import can_edit_sale
-from core.forms import ClientForm, PaymentForm, SaleForm, SaleLineFormSet
-from core.models import Client, Payment, Sale, SaleBalance
+from core.authz import admin_required, can_edit_sale
+from core.dashboard import (
+    DEFAULT_PERIOD,
+    PERIOD_LABELS,
+    get_debt_summary,
+    get_payments_total,
+    get_period_bounds,
+)
+from core.forms import (
+    ClientForm,
+    PaymentForm,
+    SaleForm,
+    SaleLineFormSet,
+    VendeurAccountForm,
+    VendeurRoleForm,
+)
+from core.models import Client, Payment, Sale, SaleBalance, User
 from core.payments import record_payment
 
 
 @login_required
 def home(request):
     return render(request, "core/home.html")
+
+
+@login_required
+def dashboard(request):
+    selected_period = request.GET.get("periode", DEFAULT_PERIOD)
+    if selected_period not in PERIOD_LABELS:
+        selected_period = DEFAULT_PERIOD
+
+    start, end = get_period_bounds(selected_period)
+    payments_total = get_payments_total(start, end)
+    total_due, debts_by_client = get_debt_summary()
+
+    context = {
+        "total_due": total_due,
+        "debts_by_client": debts_by_client,
+        "payments_total": payments_total,
+        "period_presets": PERIOD_LABELS,
+        "selected_period": selected_period,
+    }
+    return render(request, "core/dashboard.html", context)
 
 
 @login_required
@@ -216,3 +250,36 @@ def client_detail(request, pk):
     if request.method == "POST":
         return render(request, "core/_client_detail_fragment.html", context)
     return render(request, "core/client_detail.html", context)
+
+
+@login_required
+@admin_required
+def vendeur_account_list(request):
+    accounts = User.objects.order_by("username")
+    rows = [(account, VendeurRoleForm(instance=account)) for account in accounts]
+    return render(request, "core/vendeur_account_list.html", {"rows": rows})
+
+
+@login_required
+@admin_required
+def vendeur_account_create(request):
+    if request.method == "POST":
+        form = VendeurAccountForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("vendeur_account_list")
+    else:
+        form = VendeurAccountForm()
+
+    return render(request, "core/vendeur_account_form.html", {"form": form})
+
+
+@login_required
+@admin_required
+@require_POST
+def vendeur_account_role_update(request, pk):
+    account = get_object_or_404(User, pk=pk)
+    form = VendeurRoleForm(request.POST, instance=account)
+    if form.is_valid():
+        form.save()
+    return redirect("vendeur_account_list")

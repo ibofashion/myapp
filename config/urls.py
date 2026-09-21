@@ -30,6 +30,7 @@ urlpatterns = [
     ),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', core_views.home, name='home'),
+    path('tableau-de-bord/', core_views.dashboard, name='dashboard'),
     path('clients/', core_views.client_list, name='client_list'),
     path('clients/nouveau/', core_views.client_create, name='client_create'),
     path('clients/<int:pk>/', core_views.client_detail, name='client_detail'),
@@ -37,4 +38,11 @@ urlpatterns = [
     path('ventes/<int:pk>/', core_views.sale_detail, name='sale_detail'),
     path('ventes/<int:pk>/modifier/', core_views.sale_edit, name='sale_edit'),
     path('ventes/<int:pk>/annuler/', core_views.sale_delete, name='sale_delete'),
+    path('comptes/', core_views.vendeur_account_list, name='vendeur_account_list'),
+    path('comptes/nouveau/', core_views.vendeur_account_create, name='vendeur_account_create'),
+    path(
+        'comptes/<int:pk>/role/',
+        core_views.vendeur_account_role_update,
+        name='vendeur_account_role_update',
+    ),
 ]

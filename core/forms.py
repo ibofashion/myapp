@@ -1,8 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.forms import inlineformset_factory
 
-from core.models import Client, Sale, SaleLine
+from core.models import Client, Sale, SaleLine, User
 from core.phone import normalize_phone
 
 INPUT_CLASS = "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -94,6 +94,38 @@ class PaymentForm(forms.Form):
         },
         widget=forms.NumberInput(attrs={"class": INPUT_CLASS, "min": "1", "placeholder": "Montant reçu"}),
     )
+
+
+class VendeurAccountForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ["username", "role"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update({
+            "class": INPUT_CLASS,
+            "placeholder": "Identifiant",
+            "autocomplete": "off",
+        })
+        self.fields["password1"].widget.attrs.update({"class": INPUT_CLASS})
+        self.fields["password2"].widget.attrs.update({"class": INPUT_CLASS})
+        self.fields["role"].widget.attrs.update({"class": INPUT_CLASS})
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if username and User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError("Un compte avec cet identifiant existe déjà.")
+        return username
+
+
+class VendeurRoleForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["role"]
+        widgets = {
+            "role": forms.Select(attrs={"class": "text-sm rounded-md border-gray-300"}),
+        }
 
 
 SaleLineFormSet = inlineformset_factory(

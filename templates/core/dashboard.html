@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord — Mini CRM{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Tableau de bord</h1>
+
+<div class="grid gap-4 sm:grid-cols-2 mb-8">
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <p class="text-sm text-gray-500">Dette totale en cours</p>
+        <p class="text-2xl font-bold">{{ total_due }} FCFA</p>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <p class="text-sm text-gray-500 mb-2">Total encaissé</p>
+        <p class="text-2xl font-bold mb-3">{{ payments_total }} FCFA</p>
+        <div class="flex gap-2 text-sm">
+            {% for key, label in period_presets.items %}
+            <a
+                href="?periode={{ key }}"
+                class="px-2 py-1 rounded-md {% if key == selected_period %}bg-blue-600 text-white{% else %}bg-gray-100 text-gray-600{% endif %}"
+            >{{ label }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<h2 class="text-lg font-semibold mb-3">Dette par client</h2>
+{% if debts_by_client %}
+<div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+    {% for row in debts_by_client %}
+    <a href="{% url 'client_detail' row.client_id %}" class="flex items-center justify-between px-4 py-3 hover:bg-gray-50">
+        <span class="font-medium">{{ row.client_name }}</span>
+        <span class="text-gray-700">{{ row.total_due }} FCFA</span>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-500">Aucune dette en cours.</p>
+{% endif %}
+{% endblock %}
