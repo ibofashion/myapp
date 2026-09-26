@@ -141,8 +141,11 @@ def sale_edit(request, pk):
     if request.method == "POST":
         formset = SaleLineFormSet(request.POST, instance=sale, prefix="lines")
         if formset.is_valid():
-            formset.save()
+            with transaction.atomic():
+                Sale.objects.select_for_update().get(pk=sale.pk)
+                formset.save()
             success = sale
+            formset = SaleLineFormSet(instance=sale, prefix="lines")
     else:
         formset = SaleLineFormSet(instance=sale, prefix="lines")
 

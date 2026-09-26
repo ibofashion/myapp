@@ -70,6 +70,12 @@ class SaleLineForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["label"].required = False
+        self.fields["unit_price"].required = False
+        self.fields["quantity"].required = False
+
     def clean_quantity(self):
         quantity = self.cleaned_data.get("quantity")
         if quantity is not None and quantity <= 0:
@@ -81,6 +87,18 @@ class SaleLineForm(forms.ModelForm):
         if unit_price is not None and unit_price < 0:
             raise forms.ValidationError("Le prix unitaire ne peut pas être négatif.")
         return unit_price
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data.get("DELETE"):
+            return cleaned_data
+        if not cleaned_data.get("label"):
+            self.add_error("label", "Ce champ est obligatoire.")
+        if cleaned_data.get("unit_price") is None:
+            self.add_error("unit_price", "Ce champ est obligatoire.")
+        if cleaned_data.get("quantity") is None:
+            self.add_error("quantity", "Ce champ est obligatoire.")
+        return cleaned_data
 
 
 class PaymentForm(forms.Form):

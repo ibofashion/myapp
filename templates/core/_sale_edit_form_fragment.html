@@ -11,6 +11,7 @@
       hx-post="{% url 'sale_edit' sale.pk %}"
       hx-target="#sale-edit-form-container"
       hx-swap="innerHTML"
+      hx-sync="this:drop"
       hx-disabled-elt="#sale-edit-submit-btn"
       hx-indicator="#sale-edit-form-indicator"
       class="space-y-6 bg-white p-6 rounded-lg border border-gray-200">

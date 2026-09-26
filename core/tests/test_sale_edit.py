@@ -82,3 +82,77 @@ def test_un_vendeur_tiers_ne_peut_pas_modifier_la_vente(sale):
     assert response.status_code == 403
     sale.refresh_from_db()
     assert sale.lines.get().unit_price == 1500
+
+
+def test_double_soumission_apres_ajout_de_ligne_ne_cree_pas_de_doublon(sale):
+    web = DjangoClient()
+    web.login(username="vendeur1", password="x")
+    url = reverse("sale_edit", args=[sale.pk])
+
+    existing_line = sale.lines.get()
+    new_line_data = {
+        "lines-TOTAL_FORMS": "2",
+        "lines-INITIAL_FORMS": "1",
+        "lines-MIN_NUM_FORMS": "1",
+        "lines-MAX_NUM_FORMS": "1000",
+        "lines-0-id": str(existing_line.id),
+        "lines-0-label": existing_line.label,
+        "lines-0-unit_price": str(existing_line.unit_price),
+        "lines-0-quantity": str(existing_line.quantity),
+        "lines-1-id": "",
+        "lines-1-label": "Sucre",
+        "lines-1-unit_price": "700",
+        "lines-1-quantity": "2",
+    }
+
+    first_response = web.post(url, new_line_data)
+    assert first_response.status_code == 200
+    assert sale.lines.count() == 2
+
+    # The client re-submits the exact same rendered form a second time
+    # (e.g. clicking "Enregistrer" again). The response to the first POST
+    # must have refreshed the formset's management form (INITIAL_FORMS) and
+    # the new line's hidden id, otherwise this second submit is treated as
+    # yet another new line and duplicates it.
+    new_line = sale.lines.exclude(pk=existing_line.pk).get()
+    second_response = web.post(
+        url,
+        {
+            **new_line_data,
+            "lines-INITIAL_FORMS": "2",
+            "lines-1-id": str(new_line.pk),
+        },
+    )
+
+    assert second_response.status_code == 200
+    assert sale.lines.count() == 2
+    assert sale.lines.filter(label="Sucre").count() == 1
+
+
+def test_suppression_dune_ligne_vide_ajoutee_par_erreur(sale):
+    web = DjangoClient()
+    web.login(username="vendeur1", password="x")
+    url = reverse("sale_edit", args=[sale.pk])
+
+    existing_line = sale.lines.get()
+    data = {
+        "lines-TOTAL_FORMS": "2",
+        "lines-INITIAL_FORMS": "1",
+        "lines-MIN_NUM_FORMS": "1",
+        "lines-MAX_NUM_FORMS": "1000",
+        "lines-0-id": str(existing_line.id),
+        "lines-0-label": existing_line.label,
+        "lines-0-unit_price": str(existing_line.unit_price),
+        "lines-0-quantity": str(existing_line.quantity),
+        "lines-1-id": "",
+        "lines-1-label": "",
+        "lines-1-unit_price": "",
+        "lines-1-quantity": "",
+        "lines-1-DELETE": "on",
+    }
+
+    response = web.post(url, data)
+
+    assert response.status_code == 200
+    assert "obligatoire" not in response.content.decode().lower()
+    assert sale.lines.count() == 1
