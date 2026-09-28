@@ -2,9 +2,12 @@ import uuid
 
 import pytest
 from django.test import Client as DjangoClient
+from django.test.utils import CaptureQueriesContext
+from django.db import connection
 from django.urls import reverse
 
 from core.models import Client, Payment, Sale, SaleLine, User
+from core.payments import record_payment
 
 pytestmark = pytest.mark.django_db
 
@@ -96,3 +99,61 @@ def test_erreur_validation_affichee_sans_creer_de_paiement(client_obj, seller, l
 def test_acces_refuse_sans_authentification(client_obj):
     response = DjangoClient().get(reverse("client_detail", args=[client_obj.pk]))
     assert response.status_code == 302
+
+
+def test_client_sans_paiement_affiche_message_historique_vide(client_obj, logged_in_client):
+    response = logged_in_client.get(reverse("client_detail", args=[client_obj.pk]))
+    assert "Aucun paiement enregistré pour ce client." in response.content.decode()
+
+
+def test_historique_paiement_impute_sur_une_seule_vente(client_obj, seller, logged_in_client):
+    sale = make_sale(client_obj, seller, total=10000)
+    record_payment(client=client_obj, amount=4000, allocations=[(sale, 4000)], recorded_by=seller)
+
+    response = logged_in_client.get(reverse("client_detail", args=[client_obj.pk]))
+    content = response.content.decode()
+
+    assert "4000 FCFA" in content
+    assert f"Vente #{sale.id}" in content
+    assert reverse("sale_detail", args=[sale.id]) in content
+
+
+def test_historique_paiement_reparti_sur_plusieurs_ventes(client_obj, seller, logged_in_client):
+    sale1 = make_sale(client_obj, seller, total=5000)
+    sale2 = make_sale(client_obj, seller, total=5000)
+    record_payment(
+        client=client_obj,
+        amount=7000,
+        allocations=[(sale1, 3000), (sale2, 4000)],
+        recorded_by=seller,
+    )
+
+    response = logged_in_client.get(reverse("client_detail", args=[client_obj.pk]))
+    content = response.content.decode()
+
+    assert "7000 FCFA" in content
+    assert f"Vente #{sale1.id}" in content
+    assert f"Vente #{sale2.id}" in content
+    assert "3000 FCFA" in content
+    assert "4000 FCFA" in content
+
+
+def test_historique_paiements_pas_de_requetes_n_plus_1(client_obj, seller, logged_in_client):
+    sale1 = make_sale(client_obj, seller, total=5000)
+    sale2 = make_sale(client_obj, seller, total=5000)
+    record_payment(client=client_obj, amount=5000, allocations=[(sale1, 5000)], recorded_by=seller)
+    record_payment(client=client_obj, amount=5000, allocations=[(sale2, 5000)], recorded_by=seller)
+
+    url = reverse("client_detail", args=[client_obj.pk])
+    with CaptureQueriesContext(connection) as baseline:
+        logged_in_client.get(url)
+
+    sale3 = make_sale(client_obj, seller, total=5000)
+    sale4 = make_sale(client_obj, seller, total=5000)
+    record_payment(client=client_obj, amount=5000, allocations=[(sale3, 5000)], recorded_by=seller)
+    record_payment(client=client_obj, amount=5000, allocations=[(sale4, 5000)], recorded_by=seller)
+
+    with CaptureQueriesContext(connection) as after_more_payments:
+        logged_in_client.get(url)
+
+    assert len(after_more_payments.captured_queries) == len(baseline.captured_queries)

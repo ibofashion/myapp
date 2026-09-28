@@ -53,6 +53,32 @@
     {% endif %}
 </div>
 
+<div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
+    <h2 class="text-lg font-semibold px-4 py-3 border-b border-gray-200">Historique des paiements</h2>
+    {% if payments %}
+    <ul class="divide-y divide-gray-100">
+        {% for payment in payments %}
+        <li class="px-4 py-3">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-500">{{ payment.paid_at|date:"d/m/Y H:i" }}</span>
+                <span class="font-medium">{{ payment.amount }} FCFA</span>
+            </div>
+            <ul class="mt-2 space-y-1">
+                {% for allocation in payment.allocations.all %}
+                <li class="text-sm text-gray-600 flex items-center justify-between">
+                    <a href="{% url 'sale_detail' allocation.sale_id %}" class="text-blue-600 font-medium">Vente #{{ allocation.sale_id }}</a>
+                    <span>{{ allocation.amount }} FCFA</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="px-4 py-6 text-gray-500">Aucun paiement enregistré pour ce client.</p>
+    {% endif %}
+</div>
+
 <div class="bg-white rounded-lg border border-gray-200 p-6">
     <h2 class="text-lg font-semibold mb-4">Enregistrer un paiement</h2>
     {% if unpaid_balances %}

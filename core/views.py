@@ -239,11 +239,15 @@ def client_detail(request, pk):
         .order_by("-sale__sold_at")
     )
     unpaid_balances = [balance for balance in sale_balances if balance.balance > 0]
+    payments = list(
+        client.payments.order_by("-paid_at").prefetch_related("allocations__sale")
+    )
 
     context = {
         "client": client,
         "sale_balances": sale_balances,
         "unpaid_balances": unpaid_balances,
+        "payments": payments,
         "payment_form": payment_form,
         "success_payment": success_payment,
         "error": error,
