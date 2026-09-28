@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-{% load static %}
+{% load static tailwind_tags %}
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mini CRM Ventes à Crédit{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    {% tailwind_css %}
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <script defer src="https://unpkg.com/alpinejs@3.14.9/dist/cdn.min.js"></script>
     <style>

@@ -50,8 +50,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tailwind',
+    'theme',
     'core',
 ]
+
+if DEBUG:
+    INSTALLED_APPS += ['django_browser_reload']
+
+TAILWIND_APP_NAME = 'theme'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -62,6 +69,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    MIDDLEWARE += ['django_browser_reload.middleware.BrowserReloadMiddleware']
 
 ROOT_URLCONF = 'config.urls'
 

@@ -9,8 +9,8 @@ __pycache__/
 *$py.class
 *.egg-info/
 .eggs/
-build/
-dist/
+/build/
+/dist/
 
 # Virtual environments
 venv/

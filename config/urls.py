@@ -14,9 +14,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path
+from django.urls import include, path
 
 from core import views as core_views
 from core.forms import LoginForm
@@ -46,3 +47,6 @@ urlpatterns = [
         name='vendeur_account_role_update',
     ),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [path('__reload__/', include('django_browser_reload.urls'))]

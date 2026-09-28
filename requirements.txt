@@ -2,6 +2,9 @@ Django==5.2.17
 psycopg[binary]==3.3.5
 python-dotenv==1.2.3
 dj-database-url==3.1.2
+django-tailwind==4.5.0
+pytailwindcss==0.3.1
+django-browser-reload==1.21.0
 pytest==8.4.2
 pytest-django==4.14.0
 ruff==0.16.7
