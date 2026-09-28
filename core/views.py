@@ -10,10 +10,15 @@ from django.views.decorators.http import require_POST
 from core.authz import admin_required, can_edit_sale
 from core.dashboard import (
     DEFAULT_PERIOD,
+    DEFAULT_UNPAID_SALES_DIRECTION,
+    DEFAULT_UNPAID_SALES_SORT,
     PERIOD_LABELS,
+    UNPAID_SALES_SORT_FIELDS,
+    get_debt_by_seller,
     get_debt_summary,
     get_payments_total,
     get_period_bounds,
+    get_unpaid_sales,
 )
 from core.forms import (
     ClientForm,
@@ -41,15 +46,37 @@ def dashboard(request):
     start, end = get_period_bounds(selected_period)
     payments_total = get_payments_total(start, end)
     total_due, debts_by_client = get_debt_summary()
+    debts_by_seller = get_debt_by_seller()
 
     context = {
         "total_due": total_due,
         "debts_by_client": debts_by_client,
+        "debts_by_seller": debts_by_seller,
         "payments_total": payments_total,
         "period_presets": PERIOD_LABELS,
         "selected_period": selected_period,
+        "unpaid_sales": get_unpaid_sales(),
+        "unpaid_sort": DEFAULT_UNPAID_SALES_SORT,
+        "unpaid_direction": DEFAULT_UNPAID_SALES_DIRECTION,
     }
     return render(request, "core/dashboard.html", context)
+
+
+@login_required
+def dashboard_unpaid_sales(request):
+    sort = request.GET.get("tri", DEFAULT_UNPAID_SALES_SORT)
+    direction = request.GET.get("sens", DEFAULT_UNPAID_SALES_DIRECTION)
+    if sort not in UNPAID_SALES_SORT_FIELDS:
+        sort = DEFAULT_UNPAID_SALES_SORT
+    if direction not in ("asc", "desc"):
+        direction = DEFAULT_UNPAID_SALES_DIRECTION
+
+    context = {
+        "unpaid_sales": get_unpaid_sales(sort, direction),
+        "unpaid_sort": sort,
+        "unpaid_direction": direction,
+    }
+    return render(request, "core/_unpaid_sales_table.html", context)
 
 
 @login_required

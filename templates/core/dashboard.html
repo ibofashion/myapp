@@ -35,4 +35,23 @@
 {% else %}
 <p class="text-gray-500">Aucune dette en cours.</p>
 {% endif %}
+
+<h2 class="text-lg font-semibold mb-3 mt-8">Dette par vendeur</h2>
+{% if debts_by_seller %}
+<div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+    {% for row in debts_by_seller %}
+    <div class="flex items-center justify-between px-4 py-3">
+        <span class="font-medium">{{ row.seller_username }}</span>
+        <span class="text-gray-700">{{ row.total_due }} FCFA</span>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-500">Aucune dette en cours.</p>
+{% endif %}
+
+<h2 class="text-lg font-semibold mb-3 mt-8">Ventes non soldées</h2>
+<div id="unpaid-sales-table" class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    {% include "core/_unpaid_sales_table.html" %}
+</div>
 {% endblock %}

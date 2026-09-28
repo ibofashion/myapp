@@ -34,6 +34,46 @@ def get_debt_summary():
     return total_due, debts_by_client
 
 
+def get_debt_by_seller():
+    """Dette en cours détaillée par vendeur, dérivée de `SaleBalance`."""
+    rows = (
+        SaleBalance.objects.filter(balance__gt=0)
+        .values("sale__seller_id", "sale__seller__username")
+        .annotate(total_due=Sum("balance"))
+        .order_by("sale__seller__username")
+    )
+    return [
+        {
+            "seller_id": row["sale__seller_id"],
+            "seller_username": row["sale__seller__username"],
+            "total_due": row["total_due"],
+        }
+        for row in rows
+    ]
+
+
+DEFAULT_UNPAID_SALES_SORT = "date"
+DEFAULT_UNPAID_SALES_DIRECTION = "desc"
+
+UNPAID_SALES_SORT_FIELDS = {
+    "date": "sale__sold_at",
+    "solde": "balance",
+    "client": "sale__client__name",
+    "vendeur": "sale__seller__username",
+}
+
+
+def get_unpaid_sales(sort=DEFAULT_UNPAID_SALES_SORT, direction=DEFAULT_UNPAID_SALES_DIRECTION):
+    """Ventes non soldées (`balance > 0`), triées selon `sort`/`direction`."""
+    field = UNPAID_SALES_SORT_FIELDS.get(sort, UNPAID_SALES_SORT_FIELDS[DEFAULT_UNPAID_SALES_SORT])
+    order = field if direction == "asc" else f"-{field}"
+    return list(
+        SaleBalance.objects.filter(balance__gt=0)
+        .select_related("sale", "sale__client", "sale__seller")
+        .order_by(order, "sale_id")
+    )
+
+
 def get_period_bounds(preset, *, now=None):
     """Bornes [début, fin) du préset demandé, en heure locale du projet."""
     now = now or timezone.localtime(timezone.now())

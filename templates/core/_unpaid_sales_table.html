@@ -1,0 +1,53 @@
+{% if unpaid_sales %}
+<div class="overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+            <tr>
+                <th class="px-4 py-2 text-left">
+                    <a href="#" class="cursor-pointer hover:text-gray-800"
+                       hx-get="{% url 'dashboard_unpaid_sales' %}?tri=date&sens={% if unpaid_sort == 'date' and unpaid_direction == 'asc' %}desc{% else %}asc{% endif %}"
+                       hx-target="#unpaid-sales-table" hx-swap="innerHTML">
+                        Date{% if unpaid_sort == 'date' %} {% if unpaid_direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                </th>
+                <th class="px-4 py-2 text-left">
+                    <a href="#" class="cursor-pointer hover:text-gray-800"
+                       hx-get="{% url 'dashboard_unpaid_sales' %}?tri=client&sens={% if unpaid_sort == 'client' and unpaid_direction == 'asc' %}desc{% else %}asc{% endif %}"
+                       hx-target="#unpaid-sales-table" hx-swap="innerHTML">
+                        Client{% if unpaid_sort == 'client' %} {% if unpaid_direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                </th>
+                <th class="px-4 py-2 text-left">
+                    <a href="#" class="cursor-pointer hover:text-gray-800"
+                       hx-get="{% url 'dashboard_unpaid_sales' %}?tri=vendeur&sens={% if unpaid_sort == 'vendeur' and unpaid_direction == 'asc' %}desc{% else %}asc{% endif %}"
+                       hx-target="#unpaid-sales-table" hx-swap="innerHTML">
+                        Vendeur{% if unpaid_sort == 'vendeur' %} {% if unpaid_direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                </th>
+                <th class="px-4 py-2 text-right">
+                    <a href="#" class="cursor-pointer hover:text-gray-800"
+                       hx-get="{% url 'dashboard_unpaid_sales' %}?tri=solde&sens={% if unpaid_sort == 'solde' and unpaid_direction == 'asc' %}desc{% else %}asc{% endif %}"
+                       hx-target="#unpaid-sales-table" hx-swap="innerHTML">
+                        Solde restant{% if unpaid_sort == 'solde' %} {% if unpaid_direction == 'asc' %}▲{% else %}▼{% endif %}{% endif %}
+                    </a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for balance in unpaid_sales %}
+            <tr class="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
+                onclick="window.location='{% url 'sale_detail' balance.sale_id %}'">
+                <td class="px-4 py-2">
+                    <a href="{% url 'sale_detail' balance.sale_id %}" class="text-blue-600 font-medium">{{ balance.sale.sold_at|date:"d/m/Y H:i" }}</a>
+                </td>
+                <td class="px-4 py-2">{{ balance.sale.client.name }}</td>
+                <td class="px-4 py-2">{{ balance.sale.seller.username }}</td>
+                <td class="px-4 py-2 text-right font-medium">{{ balance.balance }} FCFA</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="px-4 py-6 text-gray-500">Aucune vente non soldée.</p>
+{% endif %}

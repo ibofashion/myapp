@@ -32,6 +32,11 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('', core_views.home, name='home'),
     path('tableau-de-bord/', core_views.dashboard, name='dashboard'),
+    path(
+        'tableau-de-bord/ventes-non-soldees/',
+        core_views.dashboard_unpaid_sales,
+        name='dashboard_unpaid_sales',
+    ),
     path('clients/', core_views.client_list, name='client_list'),
     path('clients/nouveau/', core_views.client_create, name='client_create'),
     path('clients/<int:pk>/', core_views.client_detail, name='client_detail'),
