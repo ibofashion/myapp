@@ -3,6 +3,7 @@
         <span class="sm:hidden block text-xs text-gray-500 mb-0.5">Article</span>
         {{ line_form.label }}
         {% if line_form.label.errors %}<p class="text-xs text-red-600">{{ line_form.label.errors|join:", " }}</p>{% endif %}
+        <div class="price-suggestion-container"></div>
     </div>
     <div class="col-span-1 sm:col-span-2">
         <span class="sm:hidden block text-xs text-gray-500 mb-0.5">Prix unitaire</span>

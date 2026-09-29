@@ -601,6 +601,13 @@
       }
     }
   }
+  .hover\:underline {
+    &:hover {
+      @media (hover: hover) {
+        text-decoration-line: underline;
+      }
+    }
+  }
   .focus\:border-blue-500 {
     &:focus {
       border-color: var(--color-blue-500);

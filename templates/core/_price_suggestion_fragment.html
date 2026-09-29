@@ -1,0 +1,8 @@
+{% if suggested_price is not None %}
+<button type="button"
+        class="mt-1 text-xs text-blue-600 hover:underline"
+        data-suggested-price="{{ suggested_price }}"
+        @click="useSuggestedPrice($event)">
+    Dernier prix : {{ suggested_price }} FCFA — Utiliser ce prix
+</button>
+{% endif %}

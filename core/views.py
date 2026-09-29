@@ -30,6 +30,7 @@ from core.forms import (
 )
 from core.models import Client, Payment, Sale, SaleBalance, User
 from core.payments import record_payment
+from core.price_suggestion import get_last_price_for_label
 
 
 @login_required
@@ -77,6 +78,15 @@ def dashboard_unpaid_sales(request):
         "unpaid_direction": direction,
     }
     return render(request, "core/_unpaid_sales_table.html", context)
+
+
+@login_required
+def price_suggestion(request):
+    article = request.GET.get("article", "")
+    suggested_price = get_last_price_for_label(article) if article else None
+    return render(
+        request, "core/_price_suggestion_fragment.html", {"suggested_price": suggested_price}
+    )
 
 
 @login_required

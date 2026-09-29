@@ -98,6 +98,8 @@ function saleFormApp(initialCount) {
         addLine() {
             const tpl = document.getElementById('empty-line-template').innerHTML.replaceAll('__prefix__', this.lineCount);
             this.$refs.linesContainer.insertAdjacentHTML('beforeend', tpl);
+            const newRow = this.$refs.linesContainer.lastElementChild;
+            if (window.htmx) htmx.process(newRow);
             this.lineCount++;
             document.getElementById('id_lines-TOTAL_FORMS').value = this.lineCount;
             this.recalc();
@@ -108,6 +110,15 @@ function saleFormApp(initialCount) {
             event.target.closest('.line-row').remove();
             this.renumber();
             this.recalc();
+        },
+        useSuggestedPrice(event) {
+            const row = event.target.closest('.line-row');
+            const priceInput = row.querySelector('.line-price-input');
+            const price = event.target.dataset.suggestedPrice;
+            if (priceInput && price !== undefined) {
+                priceInput.value = price;
+                priceInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
         },
     };
 }

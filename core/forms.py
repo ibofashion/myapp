@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.forms import inlineformset_factory
+from django.urls import reverse_lazy
 
 from core.models import Client, Sale, SaleLine, User
 from core.phone import normalize_phone
@@ -61,6 +62,12 @@ class SaleLineForm(forms.ModelForm):
         widgets = {
             "label": forms.TextInput(attrs={
                 "class": f"{INPUT_CLASS} line-label-input", "placeholder": "Article",
+                "hx-get": reverse_lazy("price_suggestion"),
+                "hx-trigger": "change, keyup changed delay:500ms",
+                "hx-target": "next .price-suggestion-container",
+                "hx-swap": "innerHTML",
+                "hx-include": "this",
+                "hx-vals": "js:{article: event.target.value}",
             }),
             "unit_price": forms.NumberInput(attrs={
                 "class": f"{INPUT_CLASS} line-price-input", "min": "0",
